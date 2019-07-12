@@ -13,7 +13,7 @@ RUN cd /tmp \
 FROM alpine
 
 COPY --from=build /out /quickjs
-RUN mv /quickjs/qj* /usr/local/bin/ \
+RUN mv /quickjs/qj* /quickjs/run* /usr/local/bin/ \
   && mkdir /work
 WORKDIR /work
 VOLUME /work
