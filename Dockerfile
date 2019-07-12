@@ -1,9 +1,21 @@
-FROM ubuntu
+FROM alpine as build
 
-ADD https://bellard.org/quickjs/quickjs-2019-07-09.tar.xz /tmp
-RUN cd /tmp && ls
-RUN cd /tmp && tar xzf quickjs-2019-07-09.tar.xz
-RUN cd /tmp && ls
-RUN cd /tmp/ && ls quickjs-2019-07-09
+RUN apk add --no-cache xz make g++
+ENV VERSION=2019-07-09
+ADD https://bellard.org/quickjs/quickjs-${VERSION}.tar.xz /tmp
+RUN cd /tmp \
+  && tar xf quickjs-${VERSION}.tar.xz \
+  && cd quickjs-${VERSION} \
+  && (make || true) \
+  && mkdir /out \
+  && mv qjs qjsbn qjsbnc qjsc run-test262 run-test262-bn doc examples /out
+
+FROM alpine
+
+COPY --from=build /out /quickjs
+RUN mv /quickjs/qj* /usr/local/bin/ \
+  && mkdir /work
+WORKDIR /work
+VOLUME /work
 
 CMD sh
